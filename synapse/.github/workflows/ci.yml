@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # A partir de la fase 1, cada servicio agrega sus dependencias
+      # y pruebas aqui (una entrada por carpeta en services/).
+      - name: Placeholder - se completa en fase 1
+        run: echo "Pipeline listo, pendiente de agregar servicios"

@@ -1,0 +1,9 @@
+# Esqueleto inicial. Cada servicio se agrega conforme se construye en su fase.
+# Fase 1 agrega employee-service y su base de datos.
+# Fase 2 agrega rabbitmq, compensation-service y benefits-service.
+# Fase 3 agrega time-attendance-service.
+# Fase 4 agrega traefik y keycloak.
+
+version: "3.9"
+
+services: {}
