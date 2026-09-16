@@ -1,0 +1,1251 @@
+openapi: 3.1.0
+info:
+  title: employee-service
+  description: 'Servicio de datos de empleados y estructura organizacional. Esquema
+    modelado en la API publica OData v2 (SFOData) de SAP SuccessFactors Employee Central:
+    PerPerson, PerPersonal, EmpEmployment, EmpJob y los foundation objects FODepartment,
+    FOCostCenter y FOLocation. No usa datos ni configuracion real de ninguna empresa.'
+  version: 0.1.0
+paths:
+  /employees:
+    post:
+      tags:
+      - employees
+      summary: Create Employee
+      operationId: create_employee_employees_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - employees
+      summary: List Employees
+      operationId: list_employees_employees_get
+      parameters:
+      - name: skip
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Skip
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: department_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Department Id
+      - name: cost_center_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cost Center Id
+      - name: location_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Id
+      - name: employment_status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/EmploymentStatus'
+          - type: 'null'
+          title: Employment Status
+      - name: manager_person_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Manager Person Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeSummary'
+                title: Response List Employees Employees Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /employees/{person_id_external}:
+    get:
+      tags:
+      - employees
+      summary: Get Employee
+      operationId: get_employee_employees__person_id_external__get
+      parameters:
+      - name: person_id_external
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Person Id External
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - employees
+      summary: Update Employee
+      operationId: update_employee_employees__person_id_external__patch
+      parameters:
+      - name: person_id_external
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Person Id External
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /employees/{person_id_external}/terminate:
+    post:
+      tags:
+      - employees
+      summary: Terminate Employee
+      description: 'Da de baja al empleado (baja logica: cambia el estado del employment
+        vigente).'
+      operationId: terminate_employee_employees__person_id_external__terminate_post
+      parameters:
+      - name: person_id_external
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Person Id External
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TerminateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /employees/{person_id_external}/direct-reports:
+    get:
+      tags:
+      - employees
+      summary: Get Direct Reports
+      operationId: get_direct_reports_employees__person_id_external__direct_reports_get
+      parameters:
+      - name: person_id_external
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Person Id External
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeSummary'
+                title: Response Get Direct Reports Employees  Person Id External  Direct
+                  Reports Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /departments:
+    get:
+      tags:
+      - organizational-structure
+      summary: List Departments
+      operationId: list_departments_departments_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DepartmentResponse'
+                type: array
+                title: Response List Departments Departments Get
+    post:
+      tags:
+      - organizational-structure
+      summary: Create Department
+      operationId: create_department_departments_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /departments/{external_code}:
+    get:
+      tags:
+      - organizational-structure
+      summary: Get Department
+      operationId: get_department_departments__external_code__get
+      parameters:
+      - name: external_code
+        in: path
+        required: true
+        schema:
+          type: string
+          title: External Code
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - organizational-structure
+      summary: Update Department
+      operationId: update_department_departments__external_code__patch
+      parameters:
+      - name: external_code
+        in: path
+        required: true
+        schema:
+          type: string
+          title: External Code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /cost-centers:
+    get:
+      tags:
+      - organizational-structure
+      summary: List Cost Centers
+      operationId: list_cost_centers_cost_centers_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CostCenterResponse'
+                type: array
+                title: Response List Cost Centers Cost Centers Get
+    post:
+      tags:
+      - organizational-structure
+      summary: Create Cost Center
+      operationId: create_cost_center_cost_centers_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CostCenterCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostCenterResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /cost-centers/{external_code}:
+    get:
+      tags:
+      - organizational-structure
+      summary: Get Cost Center
+      operationId: get_cost_center_cost_centers__external_code__get
+      parameters:
+      - name: external_code
+        in: path
+        required: true
+        schema:
+          type: string
+          title: External Code
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostCenterResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - organizational-structure
+      summary: Update Cost Center
+      operationId: update_cost_center_cost_centers__external_code__patch
+      parameters:
+      - name: external_code
+        in: path
+        required: true
+        schema:
+          type: string
+          title: External Code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CostCenterUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostCenterResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /locations:
+    get:
+      tags:
+      - organizational-structure
+      summary: List Locations
+      operationId: list_locations_locations_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LocationResponse'
+                type: array
+                title: Response List Locations Locations Get
+    post:
+      tags:
+      - organizational-structure
+      summary: Create Location
+      operationId: create_location_locations_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /locations/{external_code}:
+    get:
+      tags:
+      - organizational-structure
+      summary: Get Location
+      operationId: get_location_locations__external_code__get
+      parameters:
+      - name: external_code
+        in: path
+        required: true
+        schema:
+          type: string
+          title: External Code
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - organizational-structure
+      summary: Update Location
+      operationId: update_location_locations__external_code__patch
+      parameters:
+      - name: external_code
+        in: path
+        required: true
+        schema:
+          type: string
+          title: External Code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health:
+    get:
+      tags:
+      - health
+      summary: Health Check
+      operationId: health_check_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    CostCenterCreate:
+      properties:
+        external_code:
+          type: string
+          title: External Code
+        name:
+          type: string
+          title: Name
+        status:
+          $ref: '#/components/schemas/FoundationStatus'
+          default: active
+      type: object
+      required:
+      - external_code
+      - name
+      title: CostCenterCreate
+    CostCenterResponse:
+      properties:
+        external_code:
+          type: string
+          title: External Code
+        name:
+          type: string
+          title: Name
+        status:
+          $ref: '#/components/schemas/FoundationStatus'
+      type: object
+      required:
+      - external_code
+      - name
+      - status
+      title: CostCenterResponse
+    CostCenterUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/FoundationStatus'
+          - type: 'null'
+      type: object
+      title: CostCenterUpdate
+    DepartmentCreate:
+      properties:
+        external_code:
+          type: string
+          title: External Code
+        name:
+          type: string
+          title: Name
+        status:
+          $ref: '#/components/schemas/FoundationStatus'
+          default: active
+      type: object
+      required:
+      - external_code
+      - name
+      title: DepartmentCreate
+    DepartmentResponse:
+      properties:
+        external_code:
+          type: string
+          title: External Code
+        name:
+          type: string
+          title: Name
+        status:
+          $ref: '#/components/schemas/FoundationStatus'
+      type: object
+      required:
+      - external_code
+      - name
+      - status
+      title: DepartmentResponse
+    DepartmentUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/FoundationStatus'
+          - type: 'null'
+      type: object
+      title: DepartmentUpdate
+    EmailCreate:
+      properties:
+        email_type:
+          $ref: '#/components/schemas/EmailType'
+        email_address:
+          type: string
+          format: email
+          title: Email Address
+        is_primary:
+          type: boolean
+          title: Is Primary
+          default: false
+      type: object
+      required:
+      - email_type
+      - email_address
+      title: EmailCreate
+    EmailResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        email_type:
+          $ref: '#/components/schemas/EmailType'
+        email_address:
+          type: string
+          format: email
+          title: Email Address
+        is_primary:
+          type: boolean
+          title: Is Primary
+      type: object
+      required:
+      - id
+      - email_type
+      - email_address
+      - is_primary
+      title: EmailResponse
+    EmailType:
+      type: string
+      enum:
+      - business
+      - personal
+      title: EmailType
+    EmployeeCreate:
+      properties:
+        person_id_external:
+          type: string
+          title: Person Id External
+        date_of_birth:
+          type: string
+          format: date
+          title: Date Of Birth
+        gender:
+          $ref: '#/components/schemas/Gender'
+        personal:
+          $ref: '#/components/schemas/PersonalInfo'
+        emails:
+          items:
+            $ref: '#/components/schemas/EmailCreate'
+          type: array
+          title: Emails
+          default: []
+        phones:
+          items:
+            $ref: '#/components/schemas/PhoneCreate'
+          type: array
+          title: Phones
+          default: []
+        employment:
+          $ref: '#/components/schemas/EmploymentInfo'
+        job:
+          $ref: '#/components/schemas/JobInfo'
+      type: object
+      required:
+      - person_id_external
+      - date_of_birth
+      - gender
+      - personal
+      - employment
+      - job
+      title: EmployeeCreate
+    EmployeeResponse:
+      properties:
+        person_id_external:
+          type: string
+          title: Person Id External
+        date_of_birth:
+          type: string
+          format: date
+          title: Date Of Birth
+        gender:
+          $ref: '#/components/schemas/Gender'
+        first_name:
+          type: string
+          title: First Name
+        last_name:
+          type: string
+          title: Last Name
+        middle_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Middle Name
+        salutation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Salutation
+        marital_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Marital Status
+        nationality:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Nationality
+        emails:
+          items:
+            $ref: '#/components/schemas/EmailResponse'
+          type: array
+          title: Emails
+          default: []
+        phones:
+          items:
+            $ref: '#/components/schemas/PhoneResponse'
+          type: array
+          title: Phones
+          default: []
+        employment_status:
+          $ref: '#/components/schemas/EmploymentStatus'
+        hire_date:
+          type: string
+          format: date
+          title: Hire Date
+        termination_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Termination Date
+        job:
+          anyOf:
+          - $ref: '#/components/schemas/JobResponse'
+          - type: 'null'
+      type: object
+      required:
+      - person_id_external
+      - date_of_birth
+      - gender
+      - first_name
+      - last_name
+      - middle_name
+      - salutation
+      - marital_status
+      - nationality
+      - employment_status
+      - hire_date
+      - termination_date
+      - job
+      title: EmployeeResponse
+    EmployeeSummary:
+      properties:
+        person_id_external:
+          type: string
+          title: Person Id External
+        full_name:
+          type: string
+          title: Full Name
+        job_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title
+        department_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Department Id
+        employment_status:
+          $ref: '#/components/schemas/EmploymentStatus'
+      type: object
+      required:
+      - person_id_external
+      - full_name
+      - job_title
+      - department_id
+      - employment_status
+      title: EmployeeSummary
+      description: Version liviana del empleado, usada en listados.
+    EmployeeUpdate:
+      properties:
+        personal:
+          anyOf:
+          - $ref: '#/components/schemas/PersonalInfoUpdate'
+          - type: 'null'
+        job:
+          anyOf:
+          - $ref: '#/components/schemas/JobInfoUpdate'
+          - type: 'null'
+      type: object
+      title: EmployeeUpdate
+    EmploymentInfo:
+      properties:
+        start_date:
+          type: string
+          format: date
+          title: Start Date
+      type: object
+      required:
+      - start_date
+      title: EmploymentInfo
+    EmploymentStatus:
+      type: string
+      enum:
+      - active
+      - terminated
+      title: EmploymentStatus
+    EmploymentType:
+      type: string
+      enum:
+      - full_time
+      - part_time
+      - contingent
+      title: EmploymentType
+    FoundationStatus:
+      type: string
+      enum:
+      - active
+      - inactive
+      title: FoundationStatus
+    Gender:
+      type: string
+      enum:
+      - M
+      - F
+      - O
+      - U
+      title: Gender
+      description: Codigos de genero tal como los usa el picklist estandar de SF EC
+        (PerPerson.gender).
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    JobInfo:
+      properties:
+        job_start_date:
+          type: string
+          format: date
+          title: Job Start Date
+        job_title:
+          type: string
+          title: Job Title
+        job_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Code
+        department_id:
+          type: string
+          title: Department Id
+        cost_center_id:
+          type: string
+          title: Cost Center Id
+        location_id:
+          type: string
+          title: Location Id
+        manager_person_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Manager Person Id
+        employment_type:
+          $ref: '#/components/schemas/EmploymentType'
+        standard_hours:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Standard Hours
+          default: '40.00'
+      type: object
+      required:
+      - job_start_date
+      - job_title
+      - department_id
+      - cost_center_id
+      - location_id
+      - employment_type
+      title: JobInfo
+    JobInfoUpdate:
+      properties:
+        job_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title
+        job_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Code
+        department_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Department Id
+        cost_center_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cost Center Id
+        location_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Id
+        manager_person_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Manager Person Id
+        employment_type:
+          anyOf:
+          - $ref: '#/components/schemas/EmploymentType'
+          - type: 'null'
+        standard_hours:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Standard Hours
+      type: object
+      title: JobInfoUpdate
+    JobResponse:
+      properties:
+        job_start_date:
+          type: string
+          format: date
+          title: Job Start Date
+        job_title:
+          type: string
+          title: Job Title
+        job_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Code
+        employment_type:
+          type: string
+          title: Employment Type
+        standard_hours:
+          type: number
+          title: Standard Hours
+        department:
+          $ref: '#/components/schemas/DepartmentResponse'
+        cost_center:
+          $ref: '#/components/schemas/CostCenterResponse'
+        location:
+          $ref: '#/components/schemas/LocationResponse'
+        manager:
+          anyOf:
+          - $ref: '#/components/schemas/ManagerSummary'
+          - type: 'null'
+      type: object
+      required:
+      - job_start_date
+      - job_title
+      - job_code
+      - employment_type
+      - standard_hours
+      - department
+      - cost_center
+      - location
+      title: JobResponse
+    LocationCreate:
+      properties:
+        external_code:
+          type: string
+          title: External Code
+        name:
+          type: string
+          title: Name
+        city:
+          type: string
+          title: City
+        country:
+          type: string
+          title: Country
+        status:
+          $ref: '#/components/schemas/FoundationStatus'
+          default: active
+      type: object
+      required:
+      - external_code
+      - name
+      - city
+      - country
+      title: LocationCreate
+    LocationResponse:
+      properties:
+        external_code:
+          type: string
+          title: External Code
+        name:
+          type: string
+          title: Name
+        city:
+          type: string
+          title: City
+        country:
+          type: string
+          title: Country
+        status:
+          $ref: '#/components/schemas/FoundationStatus'
+      type: object
+      required:
+      - external_code
+      - name
+      - city
+      - country
+      - status
+      title: LocationResponse
+    LocationUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/FoundationStatus'
+          - type: 'null'
+      type: object
+      title: LocationUpdate
+    ManagerSummary:
+      properties:
+        person_id_external:
+          type: string
+          title: Person Id External
+        full_name:
+          type: string
+          title: Full Name
+      type: object
+      required:
+      - person_id_external
+      - full_name
+      title: ManagerSummary
+    MaritalStatus:
+      type: string
+      enum:
+      - single
+      - married
+      - divorced
+      - widowed
+      - other
+      title: MaritalStatus
+    PersonalInfo:
+      properties:
+        first_name:
+          type: string
+          title: First Name
+        last_name:
+          type: string
+          title: Last Name
+        middle_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Middle Name
+        salutation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Salutation
+        marital_status:
+          anyOf:
+          - $ref: '#/components/schemas/MaritalStatus'
+          - type: 'null'
+        nationality:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Nationality
+      type: object
+      required:
+      - first_name
+      - last_name
+      title: PersonalInfo
+    PersonalInfoUpdate:
+      properties:
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        middle_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Middle Name
+        salutation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Salutation
+        marital_status:
+          anyOf:
+          - $ref: '#/components/schemas/MaritalStatus'
+          - type: 'null'
+        nationality:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Nationality
+      type: object
+      title: PersonalInfoUpdate
+    PhoneCreate:
+      properties:
+        phone_type:
+          $ref: '#/components/schemas/PhoneType'
+        phone_number:
+          type: string
+          title: Phone Number
+        is_primary:
+          type: boolean
+          title: Is Primary
+          default: false
+      type: object
+      required:
+      - phone_type
+      - phone_number
+      title: PhoneCreate
+    PhoneResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        phone_type:
+          $ref: '#/components/schemas/PhoneType'
+        phone_number:
+          type: string
+          title: Phone Number
+        is_primary:
+          type: boolean
+          title: Is Primary
+      type: object
+      required:
+      - id
+      - phone_type
+      - phone_number
+      - is_primary
+      title: PhoneResponse
+    PhoneType:
+      type: string
+      enum:
+      - mobile
+      - landline
+      - work
+      - home
+      title: PhoneType
+    TerminateRequest:
+      properties:
+        end_date:
+          type: string
+          format: date
+          title: End Date
+        termination_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Termination Reason
+      type: object
+      required:
+      - end_date
+      title: TerminateRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

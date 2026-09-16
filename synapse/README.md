@@ -19,7 +19,7 @@ Ver [docs/architecture.md](docs/architecture.md) para los diagramas C4 completos
 | Fase | Contenido | Estado |
 |---|---|---|
 | 0 | Diseno de arquitectura y estructura del repo | En progreso |
-| 1 | employee-service (esquema tipo Employee Central) | Pendiente |
+| 1 | employee-service (esquema tipo Employee Central) | Completa |
 | 2 | Bus de eventos + compensation-service + benefits-service | Pendiente |
 | 3 | time-attendance-service (esquema tipo UKG) | Pendiente |
 | 4 | API Gateway + Keycloak (SSO) | Pendiente |
@@ -54,8 +54,14 @@ Seguimiento detallado de tareas en GitHub Projects (por agregar cuando el repo e
 
 ## Como correrlo localmente
 
-Instrucciones completas se agregan a partir de la fase 1, cuando el primer servicio este funcional.
+Por ahora el unico servicio funcional es `employee-service`:
 
 ```bash
-docker-compose up
+docker-compose up --build employee-service employee-db
+# la primera vez, crea el esquema y carga datos sinteticos:
+docker-compose exec employee-service python -m scripts.seed
 ```
+
+El servicio queda en `http://localhost:8001` (Swagger en `/docs`). Ver
+[services/employee-service/README.md](services/employee-service/README.md)
+para el detalle del esquema y como correrlo sin Docker.

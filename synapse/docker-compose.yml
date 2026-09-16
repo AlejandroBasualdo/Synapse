@@ -6,4 +6,32 @@
 
 version: "3.9"
 
-services: {}
+services:
+  employee-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: synapse
+      POSTGRES_DB: employee_service
+    volumes:
+      - employee-db-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U synapse -d employee_service"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  employee-service:
+    build: ./services/employee-service
+    environment:
+      DATABASE_URL: postgresql://synapse:synapse@employee-db:5432/employee_service
+    ports:
+      - "8001:8000"
+    depends_on:
+      employee-db:
+        condition: service_healthy
+
+volumes:
+  employee-db-data:
